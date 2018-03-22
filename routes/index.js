@@ -10,10 +10,8 @@ var response = {
 }
 
 
-/* GET home page. */
+/* POST Login API. */
 router.post('/login', function(req, res, next) {
-  
-  // code in research starts
 
   var username = req.get('email');
   var password = req.get('password');
@@ -29,6 +27,7 @@ router.post('/login', function(req, res, next) {
     if (auth) {
       client.then((msg) => {
         redisClient.get(username, function(err, result) {
+          console.log('asdf',result);
           let responsefinal = Object.create(response);
           responsefinal.status = 1;
           // reply is null when the key is missing 
@@ -60,22 +59,21 @@ router.post('/login', function(req, res, next) {
                   userlocation: user.physicalDeliveryOfficeName,
                   userprincipalname: user.userPrincipalName
                 }
-                var tokenid = jwt.sign(data,process.secret).toString(); 
+                var tokenid = jwt.sign(data,process.env.secret).toString(); 
                 data.tokenid = tokenid;
-                redisClient.set(username, tokenid, 'EX', process.expiresin);
+                redisClient.set(username, tokenid, 'EX', process.env.expiresin);
                 
-                data.expire_time = process.expiresin;
+                data.expire_time = process.env.expiresin;
                 responsefinal.result = data;
                 res.json(responsefinal)
               }
             });
-            //
             
             return;
           }
 
           let token = result;
-          let decodedata = jwt.verify(token,process.secret);
+          let decodedata = jwt.verify(token,process.env.secret);
           decodedata.tokenid = token;
           redisClient.ttl(username, function(err, expiresin){
           decodedata.expire_time = expiresin;
@@ -96,14 +94,12 @@ router.post('/login', function(req, res, next) {
       res.json(response);
     }
   });
-
-// code in research ends
-
 });
 
+/* POST Validate Token API. */
 router.post('/validatetoken', function(req, res, next) {
   var params = req.body;
-  jwt.verify(params.token,process.secret, function(err, decoded){
+  jwt.verify(params.token,process.env.secret, function(err, decoded){
     var validatestatus;
     if(err)
     {
@@ -115,13 +111,13 @@ router.post('/validatetoken', function(req, res, next) {
     if(result === null)
     {
       validatestatus = 400;
-      res.json({status: validatestatus});
+      res.status(400).send({status: validatestatus});
     }
     else{
       if(result!==params.token)
       {
         validatestatus = 400;
-        res.json({status: validatestatus});
+        res.status(400).send({status: validatestatus});
         return;
       }
       validatestatus = 200;
