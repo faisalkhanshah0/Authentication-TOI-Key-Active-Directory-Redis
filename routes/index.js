@@ -118,6 +118,12 @@ router.post('/validatetoken', function(req, res, next) {
       res.json({status: validatestatus});
     }
     else{
+      if(result!==params.token)
+      {
+        validatestatus = 400;
+        res.json({status: validatestatus});
+        return;
+      }
       validatestatus = 200;
       res.json({status: validatestatus});
     }
