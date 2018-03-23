@@ -8,13 +8,15 @@ var response = {
   status: undefined,
   result: {}
 }
-
+router.get('/', function(req, res, next) {
+  res.json({status: 1});
+});
 
 /* POST Login API. */
 router.post('/login', function(req, res, next) {
 
   var username = req.get('email');
-  var password = req.get('password');
+  var password = req.get('password'); 
    
   ad.authenticate(username, password, function(err, auth) {
     response.status = 0;
@@ -27,7 +29,6 @@ router.post('/login', function(req, res, next) {
     if (auth) {
       client.then((msg) => {
         redisClient.get(username, function(err, result) {
-          console.log('asdf',result);
           let responsefinal = Object.create(response);
           responsefinal.status = 1;
           // reply is null when the key is missing 
@@ -104,7 +105,8 @@ router.post('/validatetoken', function(req, res, next) {
     if(err)
     {
       validatestatus = 400;
-      res.json({status: validatestatus});
+      res.status(400).send({status: validatestatus});
+      return;
     }
     let key = decoded.userprincipalname;
     redisClient.get(key, function(err, result) {
@@ -118,16 +120,40 @@ router.post('/validatetoken', function(req, res, next) {
       {
         validatestatus = 400;
         res.status(400).send({status: validatestatus});
-        return;
       }
-      validatestatus = 200;
-      res.json({status: validatestatus});
+      else{
+        validatestatus = 200;
+        res.json({status: validatestatus});
+      }
+      
     }
+    
   });
   });
   
   
   
   });
+
+  router.post('*', function(req, res, next) {
+    let validatestatus = 'Not Allowed!';
+    res.status(400).send({status: validatestatus});
+  })
+  router.get('*', function(req, res, next) {
+    let validatestatus = 'Not Allowed!';
+    res.status(400).send({status: validatestatus});
+  })
+  router.put('*', function(req, res, next) {
+    let validatestatus = 'Not Allowed!';
+    res.status(400).send({status: validatestatus});
+  })
+  router.patch('*', function(req, res, next) {
+    let validatestatus = 'Not Allowed!';
+    res.status(400).send({status: validatestatus});
+  })
+  router.delete('*', function(req, res, next) {
+    let validatestatus = 'Not Allowed!';
+    res.status(400).send({status: validatestatus});
+  })
 
 module.exports = router;

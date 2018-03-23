@@ -2,7 +2,7 @@ const redis = require("redis");
 const redisClient = redis.createClient(
     {
         host : process.env.redishost, 
-        port : process.env.redisport
+        port : process.env.redisport || 6379
     });
 
 const client = new Promise((resolve, reject) => {
