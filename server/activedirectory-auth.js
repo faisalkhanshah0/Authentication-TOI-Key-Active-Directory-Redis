@@ -5,7 +5,7 @@ var ActiveDirectory = require('activedirectory');
 //                password: 'password' }
 var config = { 
                url: 'ldap://10.150.226.23:389',
-               baseDN: 'dc=timesgroup,dc=com',
+               baseDN: 'OU=TIL,OU=TimesGroup,dc=timesgroup,dc=com',
             //    username: 'c-shah.faisal@timesinternet.in',
             //    password: 'XXXXXXX',
             //    logging: {

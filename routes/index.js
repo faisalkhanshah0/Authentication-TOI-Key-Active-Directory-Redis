@@ -15,8 +15,8 @@ router.get('/', function(req, res, next) {
 /* POST Login API. */
 router.post('/login', function(req, res, next) {
 
-  var username = req.get('email');
-  var password = req.get('password'); 
+  var username = req.get('X-email');
+  var password = req.get('X-password'); 
    
   ad.authenticate(username, password, function(err, auth) {
     response.status = 0;
@@ -62,15 +62,15 @@ router.post('/login', function(req, res, next) {
                 }
                 var tokenid = jwt.sign(data,process.env.secret).toString(); 
                 data.tokenid = tokenid;
-                redisClient.set(username, tokenid, 'EX', process.env.expiresin);
+                redisClient.set(username, tokenid);
                 
                 data.expire_time = process.env.expiresin;
                 responsefinal.result = data;
-                res.json(responsefinal)
+                res.json(responsefinal);
               }
             });
             
-            return;
+            return; 
           }
 
           let token = result;
@@ -100,6 +100,7 @@ router.post('/login', function(req, res, next) {
 /* POST Validate Token API. */
 router.post('/validatetoken', function(req, res, next) {
   var params = req.body;
+  console.log('token : ',params.token);
   jwt.verify(params.token,process.env.secret, function(err, decoded){
     var validatestatus;
     if(err)
@@ -109,7 +110,7 @@ router.post('/validatetoken', function(req, res, next) {
       return;
     }
     let key = decoded.userprincipalname;
-    redisClient.get(key, function(err, result) {
+    redisClient.get(key, function(err, result) {  
     if(result === null)
     {
       validatestatus = 400;
@@ -132,6 +133,29 @@ router.post('/validatetoken', function(req, res, next) {
   });
   
   
+  
+  });
+
+  router.post('/logout', function(req, res, next) {
+    let token = req.get('X-token');
+    jwt.verify(token,process.env.secret, function(err, decoded){
+      let usertodelete = decoded.userprincipalname;
+      redisClient.get(usertodelete, function(err, result) {
+        if(result === null)
+        {
+          res.json({status: 1});
+        }
+        else{
+          redisClient.del(usertodelete, (err, result) => {
+            if(err){
+              console.log('Redis Deleting Error', err);
+              return res.json({status: 0, message: 'See logs'});
+            }
+            res.json({status: result});
+          });
+        }
+      });
+    });
   
   });
 
