@@ -4,7 +4,8 @@ var ActiveDirectory = require('activedirectory');
 //                username: 'username@domain.com',
 //                password: 'password' }
 var config = { 
-               url: 'ldap://10.150.226.23:389',
+            //    url: 'ldap://10.150.226.23:389',
+                  url: 'ldap://172.29.101.52:389',
                baseDN: 'OU=TIL,OU=TimesGroup,dc=timesgroup,dc=com',
             //    username: 'c-shah.faisal@timesinternet.in',
             //    password: 'XXXXXXX',
